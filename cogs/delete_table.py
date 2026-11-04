@@ -2,7 +2,7 @@ import discord
 import config
 from discord.ext import commands
 from discord import app_commands
-from config import CHECK, ERROR, X, CommandType
+from config import CHECK, DANDER, ERROR, PERMISSON, X, CommandType
 from utils import verifyCommandPermissions, save_settings, table_name_autocomplete
 
 
@@ -23,7 +23,7 @@ class DeleteTableConfirm(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.requester:
             await interaction.response.send_message(
-                f"{ERROR} ``You cannot interact with other people's embeds.``", ephemeral=True
+                f"{PERMISSON} ``You cannot interact with other people's embeds.``", ephemeral=True
             )
             return
 
@@ -43,7 +43,7 @@ class DeleteTableConfirm(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.requester:
             await interaction.response.send_message(
-                f"{ERROR} ``You cannot interact with other people's embeds.``", ephemeral=True
+                f"{PERMISSON} ``You cannot interact with other people's embeds.``", ephemeral=True
             )
             return
 
@@ -51,7 +51,7 @@ class DeleteTableConfirm(discord.ui.View):
             child.disabled = True
 
         await interaction.response.edit_message(
-            content=f"{CHECK} ``Table deletion cancelled.``", view=self
+            content=f"{X} ``Table deletion cancelled.``", view=self
         )
         self.stop()
 
@@ -76,7 +76,7 @@ class Delete_Table(commands.Cog):
 
         view = DeleteTableConfirm(table, interaction.user, interaction.guild_id)
         await interaction.response.send_message(
-            f"{ERROR} ``Are you sure you want to delete table`` ``{name}`` ``? This cannot be undone.``",
+            f"{DANDER} ``Are you sure you want to delete table`` ``{name}`` ``? This cannot be undone.``",
             view=view,
             ephemeral=True
         )
@@ -95,7 +95,7 @@ class Delete_Table(commands.Cog):
 
         view = DeleteTableConfirm(table, ctx.author, ctx.guild.id)
         view.message = await ctx.send(
-            f"{ERROR} ``Are you sure you want to delete table`` ``{name}`` ``? This cannot be undone.``",
+            f"{DANDER} ``Are you sure you want to delete table`` ``{name}`` ``? This cannot be undone.``",
             view=view
         )
 

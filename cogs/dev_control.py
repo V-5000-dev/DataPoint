@@ -9,7 +9,7 @@ import time
 import asyncio
 import subprocess
 from discord.ext import commands, tasks
-from config import CHECK, ERROR
+from config import CHECK, ERROR, PERMISSON
 import config
 from utils import apply_guild_data, save_settings
 
@@ -229,7 +229,7 @@ class Dev_Control(commands.Cog):
             with open("bot.log", "rb") as f:
                 await ctx.send(file=discord.File(f, filename="errors.txt"))
         except FileNotFoundError:
-            await ctx.send("No log file found.")
+            await ctx.send(f"{ERROR} ``No log file found.``")
         except discord.HTTPException:
             await ctx.send(f"{ERROR} ``Could not send the log file. It may be too large.``")
 
@@ -290,19 +290,19 @@ class Dev_Control(commands.Cog):
     @commands.command(name="cat")
     async def dev_cat(self, ctx, path: str):
         if os.path.isabs(path) or ".." in path.replace("\\", "/").split("/"):
-            await ctx.send("``Refusing to read paths outside the bot's directory.``")
+            await ctx.send(f"{PERMISSON} ``Refusing to read paths outside the bot's directory.``")
             return
 
         if is_secret_file(path):
-            await ctx.send("``Refusing to post a secrets file in chat.``")
+            await ctx.send(f"{PERMISSON} ``Refusing to post a secrets file in chat.``")
             return
 
         if not os.path.exists(path):
-            await ctx.send(f"``File not found:`` ``{path}``\n``Current working directory:`` ``{os.getcwd()}``")
+            await ctx.send(f"{ERROR} ``File not found:`` ``{path}``\n``Current working directory:`` ``{os.getcwd()}``")
             return
 
         if not os.path.isfile(path):
-            await ctx.send(f"``That's a directory, not a file:`` ``{path}``")
+            await ctx.send(f"{ERROR} ``That's a directory, not a file:`` ``{path}``")
             return
 
         size = os.path.getsize(path)
@@ -322,15 +322,15 @@ class Dev_Control(commands.Cog):
     @commands.command(name="ls")
     async def dev_ls(self, ctx, path: str = "."):
         if os.path.isabs(path) or ".." in path.replace("\\", "/").split("/"):
-            await ctx.send("``Refusing to list paths outside the bot's directory.``")
+            await ctx.send(f"{PERMISSON} ``Refusing to list paths outside the bot's directory.``")
             return
 
         if not os.path.exists(path):
-            await ctx.send(f"``Path not found:`` ``{path}``")
+            await ctx.send(f"{ERROR} ``Path not found:`` ``{path}``")
             return
 
         if not os.path.isdir(path):
-            await ctx.send(f"``That's a file, not a directory:`` ``{path}``")
+            await ctx.send(f"{ERROR} ``That's a file, not a directory:`` ``{path}``")
             return
 
         entries = sorted(os.listdir(path))

@@ -25,12 +25,12 @@ class AddColumn_Input(discord.ui.Modal, title="Add Column"):
         name = self.column_name.value
         if name in self.table["column_names"]:
             await interaction.response.send_message(
-                f"{PERMISSON} ``Column`` ``{name}`` ``already exists.``", ephemeral=True
+                f"{ERROR} ``Column`` ``{name}`` ``already exists.``", ephemeral=True
             )
             return
         if len(self.table["column_names"]) - 2 >= 20:
             await interaction.response.send_message(
-                f"{PERMISSON} ``Tables are limited to 20 custom columns.``", ephemeral=True
+                f"{ERROR} ``Tables are limited to 20 custom columns.``", ephemeral=True
             )
             return
         self.table["columns"] += 1
@@ -86,7 +86,7 @@ class RenameTable_Input(discord.ui.Modal, title="Rename Table"):
 
         if any(t["name"] == name for t in guild_settings["ALL_TABLES"] if t is not self.table):
             await interaction.response.send_message(
-                f"{PERMISSON} ``A table named`` ``{name}`` ``already exists.``", ephemeral=True
+                f"{ERROR} ``A table named`` ``{name}`` ``already exists.``", ephemeral=True
             )
             return
 
@@ -140,7 +140,7 @@ class RemoveColumn_Input(discord.ui.Modal, title="Remove Column"):
 
         if name in ("User", "Timestamp") and self.table["column_names"][:2] == ["User", "Timestamp"]:
             await interaction.response.send_message(
-                f"{PERMISSON} ``The`` ``{name}`` ``column cannot be removed.``", ephemeral=True
+                f"{ERROR} ``The`` ``{name}`` ``column cannot be removed.``", ephemeral=True
             )
             return
 
@@ -148,7 +148,7 @@ class RemoveColumn_Input(discord.ui.Modal, title="Remove Column"):
             index = self.table["column_names"].index(name)
         except ValueError:
             await interaction.response.send_message(
-                f"{PERMISSON} ``Column`` ``{name}`` ``not found.``", ephemeral=True
+                f"{ERROR} ``Column`` ``{name}`` ``not found.``", ephemeral=True
             )
             return
 
