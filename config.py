@@ -11,7 +11,7 @@ USER = "<:UserCommand:1512608514919632896>"
 MANAGER = "<:ManagerCommand:1512608289819463762>"
 
 
-DEFAULT_PREFIX = "t!"
+DEFAULT_PREFIX = "-"
 
 # The one value stored in a table cell that has no content.
 EMPTY_CELL = "None"
