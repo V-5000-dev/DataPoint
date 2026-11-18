@@ -11,7 +11,7 @@ class Set_Prefix(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="set-prefix", description="Change the command prefix.")
-    async def set_prefix(self, interaction: discord.Interaction, prefix: str, include_space: bool):
+    async def set_prefix(self, interaction: discord.Interaction, prefix: str, include_space: bool = False):
         if not await verifyCommandPermissions(interaction, CommandType.SERVER_ADMIN):
             return
 
@@ -32,7 +32,7 @@ class Set_Prefix(commands.Cog):
         )
 
     @commands.command(name="set-prefix")
-    async def set_prefix_command(self, ctx, prefix: str, include_space: bool):
+    async def set_prefix_command(self, ctx, prefix: str, include_space: bool = False):
         if not await verifyCommandPermissions(ctx, CommandType.SERVER_ADMIN):
             return
 
