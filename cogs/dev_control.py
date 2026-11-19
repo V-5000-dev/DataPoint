@@ -8,9 +8,11 @@ import json
 import time
 import asyncio
 import subprocess
+from datetime import datetime, timezone
 from discord.ext import commands, tasks
 from config import CHECK, ERROR, PERMISSON
 import config
+import utils
 from utils import apply_guild_data, save_settings
 
 OWNER_ID = 1057431766568284360
@@ -75,6 +77,15 @@ async def update_to(branch: str) -> tuple[bool, str]:
     return reset.returncode == 0, output.strip() or "No output."
 
 
+def full_backup_file() -> discord.File:
+    """Save, then return the whole settings file (every server) as an attachment."""
+    save_settings()
+    with open(utils.SETTINGS_FILE, "rb") as f:
+        data = f.read()
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M")
+    return discord.File(io.BytesIO(data), filename=f"settings_{stamp}.json")
+
+
 async def delete_invocation(ctx):
     """Delete the command message if possible. Failing must not stop the command."""
     try:
@@ -89,9 +100,11 @@ class Dev_Control(commands.Cog):
 
     async def cog_load(self):
         self.expire_keys.start()
+        self.dm_backup.start()
 
     async def cog_unload(self):
         self.expire_keys.cancel()
+        self.dm_backup.cancel()
 
     async def cog_check(self, ctx):
         return ctx.author.id == OWNER_ID
@@ -107,6 +120,36 @@ class Dev_Control(commands.Cog):
     @expire_keys.before_loop
     async def before_expire_keys(self):
         await self.bot.wait_until_ready()
+
+    async def send_backup_to_owner(self) -> bool:
+        """DM the owner one file holding every server's data. Returns False if it could not be sent."""
+        try:
+            owner = await self.bot.fetch_user(OWNER_ID)
+            unix_time = int(time.time())
+            await owner.send(
+                f"Full backup: {len(config.GUILD_SETTINGS)} server(s)\n🕒 <t:{unix_time}:F>",
+                file=full_backup_file(),
+            )
+            return True
+        except (discord.HTTPException, OSError):
+            logging.exception("Could not DM the full backup to the owner")
+            return False
+
+    @tasks.loop(hours=24)
+    async def dm_backup(self):
+        await self.send_backup_to_owner()
+
+    @dm_backup.before_loop
+    async def before_dm_backup(self):
+        await self.bot.wait_until_ready()
+
+    @commands.command(name="backup")
+    async def dev_backup(self, ctx):
+        await delete_invocation(ctx)
+        if await self.send_backup_to_owner():
+            await ctx.send(f"{CHECK} ``Full backup sent to your DMs.``")
+        else:
+            await ctx.send(f"{ERROR} ``Could not DM the backup. Are your DMs open?``")
 
     async def remove_expired_key(self, guild_id: int, guild_settings: dict, user_id: str, entry: dict):
         guild = self.bot.get_guild(guild_id)

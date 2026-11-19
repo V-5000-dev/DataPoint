@@ -287,3 +287,30 @@ def test_restore_refuses_a_target_guild_for_a_multi_guild_file():
         assert 8 not in config.GUILD_SETTINGS
 
     asyncio.run(run())
+
+
+def test_backup_dm_holds_every_server():
+    cog, bot = make_cog()
+    config.get_guild(1)["ALL_TABLES"].append(make_table("A"))
+    config.get_guild(2)["ALL_TABLES"].append(make_table("B"))
+    owner = SimpleNamespace(send=AsyncMock())
+    bot.fetch_user = AsyncMock(return_value=owner)
+
+    assert asyncio.run(cog.send_backup_to_owner()) is True
+
+    bot.fetch_user.assert_awaited_once_with(dev_control.OWNER_ID)
+    sent = owner.send.await_args.kwargs["file"]
+    data = json.loads(sent.fp.read())
+    assert set(data) == {"1", "2"}
+    assert data["2"]["ALL_TABLES"][0]["name"] == "B"
+
+
+def test_backup_command_reports_closed_dms():
+    cog, bot = make_cog()
+    owner = SimpleNamespace(send=AsyncMock(side_effect=discord.Forbidden(MagicMock(status=403), "closed")))
+    bot.fetch_user = AsyncMock(return_value=owner)
+    ctx = owner_ctx()
+
+    asyncio.run(cog.dev_backup.callback(cog, ctx))
+
+    assert "Could not DM" in ctx.send.await_args.args[0]
