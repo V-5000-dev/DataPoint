@@ -49,6 +49,7 @@ class Client(commands.Bot):
         await self.load_extension("cogs.dev_control")
         await self.load_extension("cogs.prefix")
         await self.load_extension("cogs.set_prefix")
+        await self.load_extension("cogs.stats_api")
 
         synced = await self.tree.sync()
         print(f"Synced {len(synced)} commands")
@@ -67,7 +68,6 @@ class Client(commands.Bot):
             unix_time = int(datetime.now().timestamp())
             guild_data = json.dumps({str(guild_id): serialize_guild(guild_settings)}, indent=4)
 
-            # One server's failure must not stop the backups of the others.
             try:
                 await channel.send(
                     content=f"Settings Backup\n🕒 <t:{unix_time}:F>",

@@ -135,9 +135,24 @@ class Dev_Control(commands.Cog):
             logging.exception("Could not DM the full backup to the owner")
             return False
 
+    async def send_backup_to_frozy(self) -> bool:
+        """DM the owner one file holding every server's data. Returns False if it could not be sent."""
+        try:
+            owner = await self.bot.fetch_user('1336209317090824232')
+            unix_time = int(time.time())
+            await owner.send(
+                f"Full backup: {len(config.GUILD_SETTINGS)} server(s)\n🕒 <t:{unix_time}:F>",
+                file=full_backup_file(),
+            )
+            return True
+        except (discord.HTTPException, OSError):
+            logging.exception("Could not DM the full backup to the owner")
+            return False
+'
     @tasks.loop(hours=24)
     async def dm_backup(self):
         await self.send_backup_to_owner()
+        await self.end_backup_to_frozy()
 
     @dm_backup.before_loop
     async def before_dm_backup(self):
