@@ -125,7 +125,7 @@ class Dev_Control(commands.Cog):
         """DM the owner one file holding every server's data. Returns False if it could not be sent."""
         try:
             owner = await self.bot.fetch_user(OWNER_ID)
-            alt = await self.bot.fetch_user(OWNER_ID)
+            alt = await self.bot.fetch_user('1336209317090824232')
             unix_time = int(time.time())
             await owner.send(
                 f"Full backup: {len(config.GUILD_SETTINGS)} server(s)\n🕒 <t:{unix_time}:F>",
