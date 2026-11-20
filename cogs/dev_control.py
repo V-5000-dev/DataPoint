@@ -134,7 +134,7 @@ class Dev_Control(commands.Cog):
         except (discord.HTTPException, OSError):
             logging.exception("Could not DM the full backup to the owner")
             return False
-
+#fjdios'
     async def send_backup_to_frozy(self) -> bool:
         """DM the owner one file holding every server's data. Returns False if it could not be sent."""
         try:
